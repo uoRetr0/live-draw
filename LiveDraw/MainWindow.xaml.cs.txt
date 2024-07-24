@@ -18,8 +18,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Brush = System.Windows.Media.Brush;
 using Point = System.Windows.Point;
-using Screen = System.Windows.Forms.Screen;
-
 
 namespace AntFu7.LiveDraw
 {
@@ -109,13 +107,6 @@ namespace AntFu7.LiveDraw
             {
                 Application.Current.Shutdown(0);
             }
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>")]
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            AdjustWindowSize();
-            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += (_, _) => AdjustWindowSize();
         }
 
         protected override void OnContentRendered(EventArgs e)
@@ -438,23 +429,6 @@ namespace AntFu7.LiveDraw
                 EraseByPoint_Flag = (int)erase_mode.NONE;
             }
         }
-
-        private void AdjustWindowSize()
-        {
-            var primaryArea = Screen.PrimaryScreen.WorkingArea;
-            var scaleRatio = Math.Max(
-                primaryArea.Width / SystemParameters.PrimaryScreenWidth,
-                primaryArea.Height / SystemParameters.PrimaryScreenHeight
-            );
-            Left = Screen.AllScreens.Min(s => s.WorkingArea.Left) / scaleRatio;
-            Top = Screen.AllScreens.Min(s => s.WorkingArea.Top) / scaleRatio;
-            Width = Screen.AllScreens.Max(s => s.WorkingArea.Right) / scaleRatio - Left;
-            Height = Screen.AllScreens.Max(s => s.WorkingArea.Bottom) / scaleRatio - Top;
-
-            Canvas.SetTop(Palette, (primaryArea.Top + primaryArea.Height / 2) / scaleRatio - Top - Palette.ActualHeight / 2);
-            Canvas.SetLeft(Palette, (primaryArea.Left + primaryArea.Width / 2) / scaleRatio - Left - Palette.ActualWidth / 2);
-        }
-
         #endregion
 
 
@@ -849,6 +823,7 @@ namespace AntFu7.LiveDraw
         #endregion
 
         #region /--------- Shortcuts --------/
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.R)
@@ -909,7 +884,6 @@ namespace AntFu7.LiveDraw
                     break;
             }
         }
-
         private void SetupHotkeys()
         {
 
@@ -917,7 +891,7 @@ namespace AntFu7.LiveDraw
             source = HwndSource.FromHwnd(windowHandle);
             source.AddHook(HwndHook);
 
-            RegisterHotKey(windowHandle, 2300, 0x0004, 0x52); //SHIFT + R - Enable/disable hotkey when not focused
+            RegisterHotKey(windowHandle, 2300, 0x0001 | 0x0004, 0x52); //ALT + SHIFT + R - Enable/disable hotkey when not focused
         }
 
         private IntPtr HwndHook(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
