@@ -19,6 +19,8 @@ using System.Windows.Threading;
 using Brush = System.Windows.Media.Brush;
 using Point = System.Windows.Point;
 using Screen = System.Windows.Forms.Screen;
+using AntFu7.LiveDraw.Properties;
+using System.Collections.Specialized;
 
 
 namespace AntFu7.LiveDraw
@@ -122,11 +124,15 @@ namespace AntFu7.LiveDraw
         {
             base.OnContentRendered(e);
 
+            LoadSettings();
+
             SetupHotkeys();
         }
 
         private void Exit(object sender, EventArgs e)
         {
+            SaveSettings();
+
             if (IsUnsaved())
                 QuickSave("ExitingAutoSave_");
 
@@ -134,6 +140,37 @@ namespace AntFu7.LiveDraw
             UnregisterHotKey(windowHandle, 1200);
 
             Application.Current.Shutdown(0);
+        }
+
+        private void LoadSettings()
+        {
+            if (Settings.Default.WindowPosition != new System.Windows.Point(0, 0))
+            {
+                Canvas.SetTop(Palette, Settings.Default.WindowPosition.Y);
+                Canvas.SetLeft(Palette, Settings.Default.WindowPosition.X);
+            }
+
+            SetOrientation(Settings.Default.isVertical);
+
+            _brushIndex = Array.IndexOf(_brushSizes, Settings.Default.BrushSize);
+            if (_brushIndex < 0) _brushIndex = 1;
+            SetBrushSize(_brushSizes[_brushIndex]);
+
+            MainInkCanvas.DefaultDrawingAttributes.Color = Settings.Default.Color;
+            
+            //-------------SIMULATE COLOR CLICK FOR UI------------------
+
+            //RoutedEventArgs args = new RoutedEventArgs(ColorPicker.ClickEvent, Settings.Default.Color);
+            //ColorPickers_Click(Settings.Default.Color, args);
+        }
+
+        private void SaveSettings()
+        {
+            Settings.Default.WindowPosition = new System.Windows.Point(Canvas.GetLeft(Palette), Canvas.GetTop(Palette));
+            Settings.Default.isVertical = _displayOrientation;
+            Settings.Default.BrushSize = _brushSizes[_brushIndex];
+            Settings.Default.Color = MainInkCanvas.DefaultDrawingAttributes.Color;
+            Settings.Default.Save();
         }
 
         #endregion
@@ -846,6 +883,7 @@ namespace AntFu7.LiveDraw
         {
             EndDrag();
         }
+
         #endregion
 
         #region /--------- Shortcuts --------/
