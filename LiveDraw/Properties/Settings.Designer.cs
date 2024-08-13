@@ -61,11 +61,22 @@ namespace AntFu7.LiveDraw.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Windows.Media.Color Color {
-            get {
-                return ((global::System.Windows.Media.Color)(this["Color"]));
+        public global::System.Windows.Media.Color Color
+        {
+            get
+            {
+                var color = (global::System.Windows.Media.Color?)this["Color"];
+                if (color == null)
+                {
+                    return global::System.Windows.Media.Colors.Orange;
+                }
+                else
+                {
+                    return (global::System.Windows.Media.Color)color;
+                }
             }
-            set {
+            set
+            {
                 this["Color"] = value;
             }
         }

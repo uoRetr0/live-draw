@@ -333,10 +333,18 @@ namespace AntFu7.LiveDraw
 
         #region /---------IO---------/
         private StrokeCollection _preLoadStrokes = null;
-        private void QuickSave(string filename = "QuickSave_")
+        private void QuickSave(string filename = "QuickSave.fdw")
         {
-            Save(new FileStream("Save\\" + filename + GenerateFileName(), FileMode.OpenOrCreate));
+            string filePath = Path.Combine("Save", filename);
+
+            if (!Directory.Exists("Save"))
+                Directory.CreateDirectory("Save");
+
+            Save(new FileStream(filePath, FileMode.Create));
         }
+
+
+
         private void Save(Stream fs)
         {
             try
